@@ -1,51 +1,91 @@
 version: '2'
+
+networks:
+  app-network:
+    name: app-network
+    driver: bridge
+    ipam:
+     config:
+      - subnet: 10.5.0.0/16
+        gateway: 10.5.0.1
+
+
 services:
     nginx:
+      container_name: nginx
       build:
         context: ./
         dockerfile: docker/nginx.docker
       volumes:
         - ./:/var/www
       ports:
-         - "8080:80"
+        - "8080:80"
       links:
-         - php-fpm
+        - php-fpm
+      networks:
+        app-network:
+          ipv4_address: 10.5.0.2
     php-fpm:
-       build:
-         context: ./
-         dockerfile: docker/php-fpm.docker
-       volumes:
-         - ./:/var/www
-       links:
-         - mysql
-       environment:
-         - "DB_PORT=3606"
-         - "DB_HOST=mysql"
+      container_name: php-fpm
+      build:
+        context: ./
+        dockerfile: docker/php-fpm.docker
+      volumes:
+        - ./:/var/www
+      links:
+        - db
+      networks:
+        app-network:
+          ipv4_address: 10.5.0.3
     php-cli:
-       build:
-         context: ./
-         dockerfile: docker/php-cli.docker
-       volumes:
-         - ./:/var/www
-       links:
-         - mysql
-       environment:
-         - "DB_PORT=3606"
-         - "DB_HOST=mysql"
-    mysql:
-       image: mysql:5.7
-       volumes:
-         - ./docker/mysql:/var/lib/mysql
-       environment:
-         - "MYSQL_ROOT_PASSWORD=secret"
-         - "MYSQL_USER=app"
-         - "MYSQL_PASSWORD=secret"
-         - "MYSQL_DATABASE"
-       ports:
-         - "33061:3306"
+      container_name: php-cli
+      build:
+        context: ./
+        dockerfile: docker/php-cli.docker
+      volumes:
+        - ./:/var/www
+      tty: true
+      links:
+        - db
+      networks:
+        app-network:
+          ipv4_address: 10.5.0.4
+    db:
+      container_name: db
+      image: mariadb:10.5.8
+      volumes:
+       - ./docker/mysql:/var/lib/mysql
+      environment:
+        MYSQL_ROOT_USER: root
+        MYSQL_ROOT_PASSWORD: secret
+        MYSQL_DATABASE: app
+        MYSQL_USER: app
+        MYSQL_PASSWORD: secret
+      expose:
+        - 3306
+      ports:
+        - "3306:3306"
+      networks:
+        app-network:
+          ipv4_address: 10.5.0.5
     node:
-       image: node:latest
-       volumes:
-         - ./:/var/www
-       working_dir: /var/www
-       tty: true
+      container_name: node
+      image: node:latest
+      volumes:
+        - ./:/var/www
+      working_dir: /var/www
+      tty: true
+      networks:
+        app-network:
+          ipv4_address: 10.5.0.6
+    phpmyadmin:
+      container_name: phpmyadmin
+      image: phpmyadmin
+      restart: always
+      ports:
+        - 8081:80
+      environment:
+        - PMA_ARBITRARY=1
+      networks:
+        app-network:
+          ipv4_address: 10.5.0.7
