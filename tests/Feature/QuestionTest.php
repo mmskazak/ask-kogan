@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Question;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -62,5 +63,23 @@ class QuestionTest extends TestCase
             'text' => $newText,
         ]);
 
+    }
+
+    public function test_delete_question_from_user() {
+
+         $title = 'title question';
+         $text = 'text question';
+
+         $question = $this->user->createQuestion($title,$text);
+
+         $isTrue = $this->user->deleteQuestion($question);
+
+         $this->assertTrue($isTrue);
+
+        $this->assertDatabaseMissing('questions', [
+            'user_id' => $question->user_id,
+            'title' => $question->title,
+            'text' => $question->text,
+        ]);
     }
 }
