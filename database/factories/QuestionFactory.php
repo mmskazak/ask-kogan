@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Model>
  */
-class OuestionFactory extends Factory
+class QuestionFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -18,7 +18,7 @@ class OuestionFactory extends Factory
     {
         return [
             'title' => fake()->title,
-            'text' => fake()->text(200),
+            'text' => fake()->text(),
             'user_id' => fake()->numberBetween(1,10),
         ];
     }

@@ -4,6 +4,8 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -41,4 +43,25 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function questions(): HasMany
+    {
+        return $this->hasMany(Question::class, 'user_id', 'id');
+    }
+
+    public function createQuestion(string $title, string $text): Model
+    {
+        return $this->questions()->create([
+            'title' => $title,
+            'text' => $text,
+        ]);
+    }
+
+    public function updateQuestion(Question $question,string $newTitle, string $newText): Model
+    {
+        return tap($question)->update([
+            'title' => $newTitle,
+            'text' => $newText,
+        ]);
+    }
 }
