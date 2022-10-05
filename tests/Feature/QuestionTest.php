@@ -2,11 +2,9 @@
 
 namespace Tests\Feature;
 
-use App\Models\Question;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Auth;
 use Tests\TestCase;
 
 class QuestionTest extends TestCase
@@ -54,6 +52,7 @@ class QuestionTest extends TestCase
         $newTitle = 'new title question';
         $newText = 'new text question';
 
+        Auth::login($this->user);
         $question = $this->user->updateQuestion($question,$newTitle,$newText);
 
         $this->assertEquals($newTitle, $question->title);
@@ -65,6 +64,33 @@ class QuestionTest extends TestCase
 
     }
 
+    public function test_update_self_question() {
+        $user1 = $this->user;
+        $user2 = User::factory()->create([
+            'name' => 'Test User 2',
+            'email' => 'test2@example.com',
+        ]);
+
+        $title = 'test title question';
+        $text = 'test text question';
+        $question = $user1->createQuestion($title,$text);
+
+        Auth::login($user2);
+
+        $newTitle = 'new test title question';
+        $newText = 'new test text question';
+
+        $this->expectExceptionMessage('Ошибка обновления вопроса');
+        $user2->updateQuestion($question, $newTitle, $newText);
+
+        $this->assertDatabaseHas('questions', [
+            'user_id' => $user1->id,
+            'title' => $title,
+            'text' => $text,
+        ]);
+    }
+
+
     public function test_delete_question_from_user() {
 
          $title = 'title question';
@@ -72,6 +98,7 @@ class QuestionTest extends TestCase
 
          $question = $this->user->createQuestion($title,$text);
 
+         Auth::login($this->user);
          $isTrue = $this->user->deleteQuestion($question);
 
          $this->assertTrue($isTrue);
@@ -80,6 +107,30 @@ class QuestionTest extends TestCase
             'user_id' => $question->user_id,
             'title' => $question->title,
             'text' => $question->text,
+        ]);
+    }
+
+
+    public function test_delete_self_question() {
+        $user1 = $this->user;
+        $user2 = User::factory()->create([
+            'name' => 'Test User 2',
+            'email' => 'test2@example.com',
+        ]);
+
+        $title = 'test title question';
+        $text = 'test text question';
+        $question = $user1->createQuestion($title,$text);
+
+        Auth::login($user2);
+
+        $this->expectExceptionMessage('Ошибка удаления вопроса');
+        $user2->deleteQuestion($question);
+
+        $this->assertDatabaseHas('questions', [
+            'user_id' => $user1->id,
+            'title' => $title,
+            'text' => $text,
         ]);
     }
 }

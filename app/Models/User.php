@@ -3,11 +3,13 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use DomainException;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Gate;
 use Laravel\Sanctum\HasApiTokens;
 
 /**
@@ -90,6 +92,10 @@ class User extends Authenticatable
 
     public function updateQuestion(Question $question,string $newTitle, string $newText): Model
     {
+        if (!Gate::allows('update-question', $question)) {
+            abort(403, 'Ошибка обновления вопроса');
+        }
+
         return tap($question)->update([
             'title' => $newTitle,
             'text' => $newText,
@@ -97,6 +103,11 @@ class User extends Authenticatable
     }
 
     public function deleteQuestion(Question $question): bool {
+
+        if (!Gate::allows('delete-question', $question)) {
+            abort(403, 'Ошибка удаления вопроса');
+        }
+
         return $question->delete();
     }
 }
