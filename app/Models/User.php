@@ -82,6 +82,11 @@ class User extends Authenticatable
         return $this->hasMany(Question::class, 'user_id', 'id');
     }
 
+    public function votings()
+    {
+        return $this->belongsToMany(Question::class,'voting','user_id','question_id' );
+    }
+
     public function createQuestion(string $title, string $text): Model
     {
         return $this->questions()->create([

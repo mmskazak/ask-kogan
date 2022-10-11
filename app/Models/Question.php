@@ -33,4 +33,9 @@ class Question extends Model
     protected $fillable = [
       'title','text','user_id'
     ];
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class,'voting','question_id','user_id' );
+    }
 }

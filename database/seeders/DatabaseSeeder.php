@@ -16,12 +16,24 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        User::factory(100)->create();
-        Question::factory(15)->create();
+        $count = 0;
+        User::factory(100)->create()->each(function($user) use (&$count) {
+            $random = rand(0, 1);
+            if($random && $count < 10) {
 
-        // \App\Models\User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
+                $count++;
+                $question = Question::factory()->make();
+                $user->questions()->create([
+                    'title' => $question->title,
+                    'text' => $question->text,
+                ]);
+            }
+        });
+
+
+        User::all()->random(50)->each(function ($user) {
+            $question = Question::all()->random(1);
+            $user->votings()->attach($question);
+        });
     }
 }

@@ -19,7 +19,6 @@ class QuestionFactory extends Factory
         return [
             'title' => fake()->title,
             'text' => fake()->text(),
-            'user_id' => fake()->numberBetween(1,10),
         ];
     }
 }
