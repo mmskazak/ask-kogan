@@ -115,4 +115,14 @@ class User extends Authenticatable
 
         return $question->delete();
     }
+
+    public function vote(Question $question): bool {
+        $this->votings()->attach($question);
+        return true;
+    }
+
+    public function unvote(Question $question): bool {
+        $this->votings()->detach($question);
+        return true;
+    }
 }
