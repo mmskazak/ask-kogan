@@ -19,6 +19,7 @@ class QuestionFactory extends Factory
         return [
             'title' => fake()->title,
             'text' => fake()->text(),
+            'slug' => fake()->word,
         ];
     }
 }

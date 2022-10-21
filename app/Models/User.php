@@ -125,4 +125,8 @@ class User extends Authenticatable
         $this->votings()->detach($question);
         return true;
     }
+
+    public function approveQuestion() {
+
+    }
 }

@@ -31,7 +31,7 @@ class Question extends Model
     use HasFactory;
 
     protected $fillable = [
-      'title','text','user_id'
+      'title','text','slug','user_id'
     ];
 
     public function users()

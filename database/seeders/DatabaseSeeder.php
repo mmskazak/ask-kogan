@@ -26,6 +26,8 @@ class DatabaseSeeder extends Seeder
                 $user->questions()->create([
                     'title' => $question->title,
                     'text' => $question->text,
+                    'slug' => $question->slug,
+                    'moderation' => 'active',
                 ]);
             }
         });
